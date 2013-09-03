@@ -17,7 +17,7 @@ module Mongoid::Taggable
 
   included do
     # create fields for tags and index it
-    field :tags_array, :type => Array, :default => []
+    field :tags_array, :type => Array, :default => [], localize: true
     index({ tags_array: 1 })
 
     # add callback to save tags index
@@ -79,12 +79,12 @@ module Mongoid::Taggable
       return unless @do_tags_index
 
       map = "function() {
-        if (!this.tags_array) {
+        if (!this.tags_array['#{I18n.locale}']) {
           return;
         }
 
-        for (index in this.tags_array) {
-          emit(this.tags_array[index], 1);
+        for (index in this.tags_array['#{I18n.locale}']) {
+          emit(this.tags_array['#{I18n.locale}'][index], 1);
         }
       }"
 
