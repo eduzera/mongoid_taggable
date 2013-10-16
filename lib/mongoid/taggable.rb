@@ -103,6 +103,34 @@ module Mongoid::Taggable
       # removing tags they wish not to appear in index.
       self.unscoped.map_reduce(map, reduce).out(replace: tags_index_collection_name).raw
     end
+
+    def all_tags(locale = I18n.locale, scope = {})
+        map = %Q{
+          function() {
+            if(this.tags_array !== undefined && this.tags_array['#{locale}']){
+              this.tags_array['#{locale}'].replace(' ,', ',').split(',').forEach(function(tag){
+                emit(tag, 1)
+              });
+            }
+          }
+        }
+
+        reduce = %Q{
+          function(key, values) {
+            var tag_count = 0 ;
+            values.forEach(function(value) {
+              tag_count += value;
+            });
+            return tag_count;
+          }
+        }
+
+        tags = self
+        tags = tags.where(scope) if scope.present?
+
+        results = tags.map_reduce(map, reduce).out(inline: true)
+        results.to_a.map!{ |item| { :name => item['_id'], :count => item['value'].to_i } }
+    end
   end
 
 
