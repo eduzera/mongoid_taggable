@@ -106,8 +106,8 @@ module Mongoid::Taggable
   end
 
 
-  def tags
-    (tags_array || []).join(self.class.tags_separator)
+  def tags(locale = I18n.locale)
+    (tags_array_translations[locale.to_s] || []).join(self.class.tags_separator)
   end
 
   def tags=(tags)
