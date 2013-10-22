@@ -205,28 +205,38 @@ describe Mongoid::Taggable do
     before do
       MyModel.create!(:tags_array_translations => {'pt-BR' => "comida,formiga,urso", 'en' => "food,ant,beer"})
       MyModel.create!(:tags_array_translations => {'pt-BR' => "carro,caminhao,moto", 'en' => "car,truck,motocycle"})
+      MyModel.create!(:tags_array_translations => {'pt-BR' => "carro,caminhao,moto", 'en' => "car,truck,motocycle"})
     end
 
     context 'when locale is pt-BR' do
       subject{ MyModel.all_tags('pt-BR') }
 
-      it{should be_include({name: 'comida', count: 1})}
-      it{should be_include({name: 'formiga', count: 1})}
-      it{should be_include({name: 'urso', count: 1})}
-      it{should be_include({name: 'carro', count: 1})}
-      it{should be_include({name: 'caminhao', count: 1})}
-      it{should be_include({name: 'moto', count: 1})}
+      it{should be_include({name: 'comida'  , count: 1})}
+      it{should be_include({name: 'formiga' , count: 1})}
+      it{should be_include({name: 'urso'    , count: 1})}
+      it{should be_include({name: 'carro'   , count: 2})}
+      it{should be_include({name: 'caminhao', count: 2})}
+      it{should be_include({name: 'moto'    , count: 2})}
+
+      it "need to be ordered by count and alphabetic" do
+        subject[0].should eq({name: 'caminhao', count: 2})
+        subject[1].should eq({name: 'carro'   , count: 2})
+        subject[2].should eq({name: 'moto'    , count: 2})
+        subject[3].should eq({name: 'comida'  , count: 1})
+        subject[4].should eq({name: 'formiga' , count: 1})
+        subject[5].should eq({name: 'urso'    , count: 1})
+      end
     end
 
     context 'when locale is en' do
       subject{ MyModel.all_tags }
 
-      it{should be_include({name: 'food', count: 1})}
-      it{should be_include({name: 'ant', count: 1})}
-      it{should be_include({name: 'beer', count: 1})}
-      it{should be_include({name: 'car', count: 1})}
-      it{should be_include({name: 'truck', count: 1})}
-      it{should be_include({name: 'motocycle', count: 1})}
+      it{should be_include({name: 'food'      , count: 1})}
+      it{should be_include({name: 'ant'       , count: 1})}
+      it{should be_include({name: 'beer'      , count: 1})}
+      it{should be_include({name: 'car'       , count: 2})}
+      it{should be_include({name: 'truck'     , count: 2})}
+      it{should be_include({name: 'motocycle' , count: 2})}
     end
   end
 end

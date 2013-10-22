@@ -129,7 +129,7 @@ module Mongoid::Taggable
         tags = tags.where(scope) if scope.present?
 
         results = tags.map_reduce(map, reduce).out(inline: true)
-        results.to_a.map!{ |item| { :name => item['_id'], :count => item['value'].to_i } }
+        results.to_a.sort{|x, y| [y['value'], x['_id']] <=> [x['value'], y['_id']] }.map!{ |item| { :name => item['_id'], :count => item['value'].to_i } }
     end
   end
 
